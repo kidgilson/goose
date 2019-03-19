@@ -26,6 +26,7 @@ func SetVerbose(v bool) {
 func Run(command string, db *sql.DB, dir string, args ...string) error {
 	switch command {
 	case "up":
+		fmt.Println("GOOSE UP")
 		if err := Up(db, dir); err != nil {
 			return err
 		}
