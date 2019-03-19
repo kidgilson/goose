@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-const VERSION = "v2.7.1-rc3"
+const VERSION = "v2.7.1-el"
 
 var (
 	duplicateCheckOnce sync.Once
@@ -26,7 +26,6 @@ func SetVerbose(v bool) {
 func Run(command string, db *sql.DB, dir string, args ...string) error {
 	switch command {
 	case "up":
-		fmt.Println("GOOSE UP")
 		if err := Up(db, dir); err != nil {
 			return err
 		}

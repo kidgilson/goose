@@ -2,20 +2,17 @@ package goose
 
 import (
 	"database/sql"
-	"fmt"
 )
 
 // UpTo migrates up to a specific version.
 func UpTo(db *sql.DB, dir string, version int64) error {
 	migrations, err := CollectMigrations(dir, minVersion, version)
-	fmt.Println("Migrations", migrations)
 	if err != nil {
 		return err
 	}
 
 	for {
 		current, err := GetDBVersion(db)
-		fmt.Println("Current version", current)
 		if err != nil {
 			return err
 		}
