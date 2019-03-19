@@ -50,6 +50,23 @@ func (m *Migration) Down(db *sql.DB) error {
 	return nil
 }
 
+// IsApplied checks the dB table for whether this has been applied or not
+func (m *Migration) IsApplied(db *sql.DB, v int64) (bool, error) {
+	var versionID int64
+	var isApplied bool
+	err := db.QueryRow(fmt.Sprintf("SELECT version_id, is_applied FROM %s WHERE version_id = %d ORDER BY id DESC", TableName(), v)).Scan(versionID, isApplied)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
+	}
+	if !isApplied {
+		return false, nil
+	}
+	return true, nil
+}
+
 func (m *Migration) run(db *sql.DB, direction bool) error {
 	switch filepath.Ext(m.Source) {
 	case ".sql":

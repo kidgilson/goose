@@ -48,9 +48,13 @@ func (ms Migrations) Current(current int64) (*Migration, error) {
 }
 
 // Next gets the next migration.
-func (ms Migrations) Next(current int64) (*Migration, error) {
+func (ms Migrations) Next(db *sql.DB, current int64) (*Migration, error) {
 	for i, migration := range ms {
-		if migration.Version > current {
+		isApplied, err := migration.IsApplied(db, migration.Version)
+		if err != nil {
+			return nil, err
+		}
+		if !isApplied || migration.Version > current {
 			return ms[i], nil
 		}
 	}
