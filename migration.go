@@ -57,7 +57,7 @@ func (m *Migration) IsApplied(db *sql.DB, v int64) (bool, error) {
 	err := db.QueryRow(fmt.Sprintf("SELECT version_id, is_applied FROM %s WHERE version_id = %d ORDER BY id DESC", TableName(), v)).Scan(&versionID, &isApplied)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return true, nil
+			return false, nil
 		}
 		return false, err
 	}
