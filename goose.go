@@ -7,7 +7,8 @@ import (
 	"sync"
 )
 
-const VERSION = "v2.7.1-el"
+//VERSION is the current version
+const VERSION = "v2.7.2-el"
 
 var (
 	duplicateCheckOnce sync.Once

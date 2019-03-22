@@ -135,7 +135,7 @@ func (m *Migration) run(db *sql.DB, direction bool) error {
 					return errors.Wrap(err, "ERROR failed to execute transaction")
 				}
 			} else if ok {
-				if _, err := tx.Exec(GetDialect().updateVersionSQL(), m.Version); err != nil {
+				if _, err := tx.Exec(GetDialect().updateVersionSQL(), time.Now(), m.Version); err != nil {
 					tx.Rollback()
 					return errors.Wrap(err, "ERROR failed to execute transaction")
 				}

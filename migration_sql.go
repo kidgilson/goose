@@ -3,6 +3,7 @@ package goose
 import (
 	"database/sql"
 	"regexp"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -45,7 +46,7 @@ func runSQLMigration(db *sql.DB, m *Migration, statements []string, useTx bool, 
 					return errors.Wrap(err, "failed to insert new goose version")
 				}
 			} else if ok {
-				if _, err := tx.Exec(GetDialect().updateVersionSQL(), v); err != nil {
+				if _, err := tx.Exec(GetDialect().updateVersionSQL(), time.Now(), v); err != nil {
 					verboseInfo("Rollback transaction")
 					tx.Rollback()
 					return errors.Wrap(err, "failed to insert new goose version")
@@ -82,7 +83,7 @@ func runSQLMigration(db *sql.DB, m *Migration, statements []string, useTx bool, 
 			return errors.Wrap(err, "failed to insert new goose version")
 		}
 	} else if ok {
-		if _, err := db.Exec(GetDialect().updateVersionSQL(), v); err != nil {
+		if _, err := db.Exec(GetDialect().updateVersionSQL(), time.Now(), v); err != nil {
 			return errors.Wrap(err, "failed to insert new goose version")
 		}
 	}
