@@ -51,10 +51,10 @@ func (m *Migration) Down(db *sql.DB) error {
 }
 
 // IsApplied checks the dB table for whether this has been applied or not
-func (m *Migration) IsApplied(db *sql.DB, v int64) (bool, error) {
+func (m *Migration) IsApplied(db *sql.DB) (bool, error) {
 	var versionID int64
 	var isApplied bool
-	err := db.QueryRow(fmt.Sprintf("SELECT version_id, is_applied FROM %s WHERE version_id = %d ORDER BY id DESC", TableName(), v)).Scan(&versionID, &isApplied)
+	err := db.QueryRow(fmt.Sprintf("SELECT version_id, is_applied FROM %s WHERE version_id = %d ORDER BY id DESC", TableName(), m.Version)).Scan(&versionID, &isApplied)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return false, nil
@@ -63,6 +63,19 @@ func (m *Migration) IsApplied(db *sql.DB, v int64) (bool, error) {
 	}
 	if !isApplied {
 		return false, nil
+	}
+	return true, nil
+}
+
+// IsInDB checks the dB table for whether this version is in there
+func (m *Migration) IsInDB(db *sql.DB) (bool, error) {
+	var versionID int64
+	err := db.QueryRow(fmt.Sprintf("SELECT version_id FROM %s WHERE version_id = %d ORDER BY id DESC", TableName(), m.Version)).Scan(&versionID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, err
 	}
 	return true, nil
 }
@@ -114,9 +127,18 @@ func (m *Migration) run(db *sql.DB, direction bool) error {
 		}
 
 		if direction {
-			if _, err := tx.Exec(GetDialect().insertVersionSQL(), m.Version, direction); err != nil {
-				tx.Rollback()
+			if ok, err := m.IsInDB(db); err != nil {
 				return errors.Wrap(err, "ERROR failed to execute transaction")
+			} else if !ok {
+				if _, err := tx.Exec(GetDialect().insertVersionSQL(), m.Version, direction); err != nil {
+					tx.Rollback()
+					return errors.Wrap(err, "ERROR failed to execute transaction")
+				}
+			} else if ok {
+				if _, err := tx.Exec(GetDialect().updateVersionSQL(), m.Version); err != nil {
+					tx.Rollback()
+					return errors.Wrap(err, "ERROR failed to execute transaction")
+				}
 			}
 		} else {
 			if _, err := tx.Exec(GetDialect().deleteVersionSQL(), m.Version); err != nil {

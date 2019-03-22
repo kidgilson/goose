@@ -50,7 +50,7 @@ func (ms Migrations) Current(current int64) (*Migration, error) {
 // Next gets the next migration.
 func (ms Migrations) Next(db *sql.DB, current int64) (*Migration, error) {
 	for i, migration := range ms {
-		isApplied, err := migration.IsApplied(db, migration.Version)
+		isApplied, err := migration.IsApplied(db)
 		fmt.Println("Version", migration.Version, "is applied?", isApplied)
 		if err != nil {
 			return nil, err
