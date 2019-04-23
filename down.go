@@ -21,7 +21,7 @@ func Down(db *sql.DB, dir string) error {
 	if err != nil {
 		return fmt.Errorf("no migration %v", currentVersion)
 	}
-
+	fmt.Println("Downing this version:", current.Version)
 	return current.Down(db)
 }
 
@@ -48,7 +48,7 @@ func DownTo(db *sql.DB, dir string, version int64) error {
 			log.Printf("goose: no migrations to run. current version: %d\n", currentVersion)
 			return nil
 		}
-
+		fmt.Println("Downing this version:", current.Version)
 		if err = current.Down(db); err != nil {
 			return err
 		}
